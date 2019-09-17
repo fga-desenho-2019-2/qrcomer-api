@@ -13,10 +13,12 @@ services:
       - db
   
   db:
+    container_name: user-service-db
     image: postgres:9.6
     environment:
-      POSTGRES_PASSWORD: dbpass
+      POSTGRES_HOST: dbhost
       POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: dbpass
     volumes:
       - pgdata:/var/lib/postgresql/data
 
