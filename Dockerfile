@@ -13,3 +13,5 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 ADD . .
+
+EXPOSE 8000

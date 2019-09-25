@@ -4,6 +4,9 @@ services:
   api:
     container_name: user-service
     build: .
+    environment:
+      DB_USER: admin
+      DB_PASS: admin
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/project
@@ -14,15 +17,15 @@ services:
   
   db:
     container_name: user-service-db
-    image: postgres:9.6
+    image: postgres:latest
+    # command: printenv
     environment:
-      POSTGRES_HOST: dbhost
-      POSTGRES_USER: dbuser
-      POSTGRES_PASSWORD: dbpass
+      POSTGRES_DB: user_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
     volumes:
       - pgdata:/var/lib/postgresql/data
-
-
+    
 volumes:
   pgdata:
     driver: local

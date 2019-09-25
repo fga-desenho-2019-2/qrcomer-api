@@ -79,10 +79,10 @@ DOCKER = True
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'dbuser',
-        'PASSWORD': 'dbpass',
-        'HOST': '172.25.0.2',
+        'NAME': 'user_db',
+        'USER': os.getenv('DB_USER', 'admin'),
+        'PASSWORD': os.getenv('DB_PASS', 'admin'),
+        'HOST': os.getenv('DB_HOST', 'db'),
         'PORT': 5432,
     }
 }
