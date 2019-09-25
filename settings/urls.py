@@ -16,8 +16,11 @@ Including another URLconf
 from rest_framework_swagger.views import get_swagger_view
 from django.contrib import admin
 from django.urls import path
+from user_service.views import registration_user
+
 
 urlpatterns = [
     path ('', get_swagger_view('User Service API')),
     path('admin/', admin.site.urls),
+    path('register/', registration_user, name='register')
 ]
