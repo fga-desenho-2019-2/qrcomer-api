@@ -1,0 +1,72 @@
+stages:
+  - lint
+  - test
+  - build
+  - deploy
+
+.all_branches: &all_branches
+  only:
+    - /^feature\/+[0-9](-[a-zA-Z0-9_]+)*/ # feature/76-Algum_nome_assim
+    - /^bugfix\/+[0-9](-[a-zA-Z0-9_]+)*/ # bugfix/76-Algum_nome_assim
+    - master
+    - develop
+    - tags # 0.1.0-rc.1
+
+.protected_branches: &protected_branches
+  only:
+    - master
+    - develop
+    - tags
+
+linting:
+  image: python:3.6
+  stage: lint
+  before_script:
+    - pip install pylint
+  script:
+    - pylint user_service/
+    - pylint settings/
+  allow_failure: true
+  <<: *all_branches
+
+tests:
+  image: python:3.6
+  stage: test
+  services:
+    - postgres:latest
+  variables:
+    POSTGRES_DB: user_db
+    POSTGRES_USER: admin
+    POSTGRES_PASSWORD: admin
+    DB_HOST: postgres
+    DB_USER: admin
+    DB_PASS: admin
+  before_script:
+    - pip install pytest
+    - pip install -r requirements.txt
+  script:
+    - ./manage.py test
+  <<: *all_branches
+
+build image:
+  stage: build
+  image: docker:stable
+  services:
+    - docker:stable-dind
+  variables:
+    VERSION: $CI_COMMIT_SHORT_SHA
+  before_script:
+    - docker login -u $DOCKER_USER -p $DOCKER_PASS
+    - |
+      if [ "$CI_COMMIT_REF_NAME" = "master" ];
+      then
+        export VERSION=stable
+      elif [ "$CI_COMMIT_REF_NAME" = "develop" ];
+      then
+        export VERSION=hm
+      fi
+  script:
+    - export IMAGE=$DOCKER_USER/$CI_PROJECT_NAME:$VERSION
+    - docker build -t $IMAGE .
+    - docker push $IMAGE
+  <<: *all_branches
