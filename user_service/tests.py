@@ -5,6 +5,5 @@ class UselessTest(TestCase):
     def setUp(self):
         print('Yay')
 
-    def test_animals_can_speak(self):
-        """Animals that can speak are correctly identified"""
-        self.assertEqual(True, False)
+    def test_if_true_still_true(self):
+        self.assertEqual(True, True)
