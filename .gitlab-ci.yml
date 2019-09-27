@@ -46,3 +46,26 @@ tests:
   script:
     - ./manage.py test
   <<: *all_branches
+
+build image:
+  stage: build
+  image: docker:stable
+  services:
+    - docker:stable-dind
+  variables:
+    VERSION: $CI_COMMIT_SHORT_SHA
+  before_script:
+    - docker login -u $DOCKER_USER -p $DOCKER_PASS
+    - |
+      if [ "$CI_COMMIT_REF_NAME" = "master" ];
+      then
+        export VERSION=stable
+      elif [ "$CI_COMMIT_REF_NAME" = "develop" ];
+      then
+        export VERSION=hm
+      fi
+  script:
+    - export IMAGE=$DOCKER_USER/$CI_PROJECT_NAME:$VERSION
+    - docker build -t $IMAGE .
+    - docker push $IMAGE
+  <<: *all_branches
