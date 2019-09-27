@@ -26,5 +26,6 @@ linting:
   script:
     - pylint user_service/
     - pylint settings/
+  allow_failure: true
   <<: *all_branches
 
