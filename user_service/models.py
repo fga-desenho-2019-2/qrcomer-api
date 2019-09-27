@@ -8,7 +8,7 @@ class User(AbstractUser):
 
     last_name = models.CharField(blank = True, max_length = 50)
 
-    email = models.EmailField(('email address'), blank=False, unique=True)
+    email = models.EmailField()
 
     cpf = models.CharField(blank = True, max_length = 14)
 

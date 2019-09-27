@@ -34,6 +34,6 @@ class RegistrationUser(serializers.ModelSerializer):
         #     )
 
         # user.set_password(password)
-       # user.save()
-
+        # user.save()
+        
         return user
