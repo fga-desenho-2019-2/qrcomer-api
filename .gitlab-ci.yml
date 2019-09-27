@@ -1,1 +1,30 @@
+stages:
+  - lint
+  - test
+  - build
+  - deploy
+
+.all_branches: &all_branches
+  only:
+    - /^feature\/+[0-9](-[a-zA-Z0-9_]+)*/ # feature/76-Algum_nome_assim
+    - /^bugfix\/+[0-9](-[a-zA-Z0-9_]+)*/ # bugfix/76-Algum_nome_assim
+    - master
+    - develop
+    - tags # 0.1.0-rc.1
+
+.protected_branches: &protected_branches
+  only:
+    - master
+    - develop
+    - tags
+
+linting:
+  image: python:3.6
+  stage: lint
+  before_script:
+    - pip install pylint
+  script:
+    - pylint user_service/
+    - pylint settings/
+  <<: *all_branches
 
