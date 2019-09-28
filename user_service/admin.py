@@ -5,7 +5,7 @@ from django.contrib.auth.admin import UserAdmin as AuthUserAdmin
 from .models import User
 
 # Register your models here.
-class UserAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'email', 'cpf')
+# class UserAdmin(admin.ModelAdmin):
+#     list_display = ('first_name', 'last_name', 'email', 'cpf')
 
-admin.site.register(User, UserAdmin)
+# admin.site.register(User, UserAdmin)

@@ -12,17 +12,15 @@ from rest_framework.decorators import api_view
 @api_view(['POST'])
 def registration_user(request):
     serializer = RegistrationUser(data=request.data)
+    print(request.data)
     data = {}
 
     if serializer.is_valid():
         user = serializer.save()
-        data['response'] = 'Usuário registrado com sucesso'
-        data['first_name'] = user.first_name
-        data['last_name'] = user.last_name
-        data['email'] = user.email
-        data['cpf'] = user.cpf
+        data = {'response': 'usuário criado com sucesso'}
 
     else:
         data = serializer.errors
 
     return Response(data)
+
