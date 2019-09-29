@@ -1,4 +1,5 @@
 from .models import Client
+from django.http import HttpResponse, JsonResponse
 from .serializers import ClientSerializer
 from rest_framework import permissions, generics
 from rest_framework.response import Response
@@ -6,6 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.generics import CreateAPIView
 from rest_framework.authtoken.models import Token
 from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.status import (
     HTTP_403_FORBIDDEN,
@@ -35,6 +37,15 @@ def register_client(request):
         data = serializer.errors
 
     return Response(data)
+
+@api_view(['DELETE'])
+def delete_client(request, registro):
+    try:
+        client = Client.objects.get(pk=registro)
+    except Client.DoesNotExist:
+        return HttpResponse(status=404)
+    client.delete()
+    return HttpResponse(status=204)
 
 @api_view(["POST"])
 def list_clients(request):
