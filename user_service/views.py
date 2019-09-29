@@ -20,8 +20,8 @@ class ClientList(generics.ListCreateAPIView):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
 
-class ClientDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Client.objects.all()
+class ClientDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ClientSerializer
 
 @api_view(['POST'])
@@ -52,13 +52,25 @@ def list_clients(request):
     clients = Client.objects.all().values()
     return Response(data=clients)
 
-# @api_view(['POST'])
-# def register_user(request):
-#     serializer = UserSerializer(data=request.data)
-#     if serializer.is_valid():
-#         user = User.objects.filter(cpf=serializer.data["cpf"]).first()
-#         if(user):
-#             user = UserSerializer.create(serializer, request.data)
-#             return Response({"Usuário cadastrado com sucesso!"})
-#     else:
-#         return Response({"Dados incorretos! Tente novamente"})
+@api_view(["POST"])
+def edit_client(request, registro):
+    client = Client.objects.get(pk=registro)
+    first_name = request.data.get('first_name')
+    last_name = request.data.get('last_name')
+    email = request.data.get('email')
+
+
+    if(registro == None):
+        return Response({'error':'Falha na requisição.'},status=HTTP_400_BAD_REQUEST)
+
+    try:
+        client = Client.objects.get(pk=registro)
+    except:
+        return Response({'error': 'Produto não existe.'},
+                                status=HTTP_404_NOT_FOUND)
+    serializer = ClientSerializer(client, request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    else:
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
