@@ -15,9 +15,13 @@ Including another URLconf
 """
 from rest_framework_swagger.views import get_swagger_view
 from django.contrib import admin
-from django.urls import path
+from django.conf.urls import url
+from django.urls import path, include
+from user_service.views import register_client, list_clients
 
 urlpatterns = [
     path ('', get_swagger_view('User Service API')),
     path('admin/', admin.site.urls),
+    url(r'^', include('user_service.urls')),
+
 ]
