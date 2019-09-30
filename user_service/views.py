@@ -66,7 +66,7 @@ def edit_client(request, registro):
     try:
         client = Client.objects.get(pk=registro)
     except:
-        return Response({'error': 'Produto não existe.'},
+        return Response({'error': 'Cliente não existe.'},
                                 status=HTTP_404_NOT_FOUND)
     serializer = ClientSerializer(client, request.data)
     if serializer.is_valid():
