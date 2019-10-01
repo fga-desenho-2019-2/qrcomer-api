@@ -12,4 +12,4 @@ class Client(models.Model):
 
 
     def __str__(self):
-        return self.first_name + self.email
+        return self.first_name + self.last_name

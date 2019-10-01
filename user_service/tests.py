@@ -7,11 +7,11 @@ from .serializers import ClientSerializer
 
 class CheckCLientAPITest(APITestCase):
 
-    # def test_register_client_with_correct_params(self):
-    #     # If the order was successfully created
-    #     request_1 = {'registro':'123', 'first_name':'Matheus', 'last_name':'Blanco', 'email':'msallesblanco2gmail.com', 'password':'12345678', 'cpf':'065.822.021-70'}
-    #     response_1 = self.client.post('/register_order/', request_1)
-    #     self.assertEqual(response_1.status_code, 200)
+    def test_register_client_with_correct_params(self):
+        # If user was successfully created
+        request_1 = {'registro':'123', 'first_name':'Matheus', 'last_name':'Blanco', 'email':'msallesblanco2gmail.com', 'password':'12345678', 'cpf':'065.822.021-70'}
+        response_1 = self.client.post('/register_client/', request_1)
+        self.assertEqual(response_1.status_code, 200)
 
     def test_register_client_with_status_0(registro, status=0):
 
@@ -19,7 +19,7 @@ class CheckCLientAPITest(APITestCase):
         first_name = 'xiu'
         last_name = 'xau'
         email = 'xiuxau@gmail.com'
-        password = 12345698
+        password = '12345698'
         cpf = '065.922.021-70'
 
 
