@@ -6,6 +6,10 @@ WORKDIR /project
 
 COPY requirements.txt requirements.txt
 
+COPY ./compose/local/start.sh /start.sh
+RUN sed -i 's/\r//' /start.sh
+RUN chmod +x /start.sh
+
 RUN apt-get update
 
 RUN pip install --upgrade pip 
