@@ -22,6 +22,20 @@
 #     queryset = Client.objects.all()
 # class ClientDetail(generics.RetrieveUpdateDestroyAPIView):
 #     serializer_class = ClientSerializer
+from django.http import HttpResponse, JsonResponse
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.parsers import JSONParser
+from rest_framework.decorators import api_view
+from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
+
+from user_service.models import (
+  Profile
+)
+from user_service.api.serializers import (
+  UserSerializer
+)
 
 # @api_view(['POST'])
 # def register_client(request):
@@ -37,10 +51,19 @@
 
 #     return Response(data)
 
-# @api_view(["POST"])
-# def list_clients(request):
-#     clients = Client.objects.all().values()
-#     return Response(data=clients)
+@api_view(["GET"])
+def users(request):
+  users = Profile.objects.all()
+  serializer = UserSerializer(users, many=True)
+  return JsonResponse(serializer.data, safe=False)
+
+
+@api_view(["GET", "POST", "DELETE", "PUT"])
+def user(request):
+  print("CRUD USER")
+  # users = Profile.objects.all()
+  # serializer = UserSerializer(users, many=True)
+  # return JsonResponse(serializer.data, safe=False)
 
 # @api_view(['DELETE'])
 # def delete_client(request, registro):

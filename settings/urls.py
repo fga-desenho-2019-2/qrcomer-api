@@ -20,7 +20,7 @@ from django.urls import path, include
 # from user_service.views import register_client, list_clients
 
 urlpatterns = [
-    # path ('', get_swagger_view('User Service API')),
+    path('api/', include('user_service.api.urls')),
     path('admin/', admin.site.urls),
     # url(r'^', include('user_service.urls')),
 
