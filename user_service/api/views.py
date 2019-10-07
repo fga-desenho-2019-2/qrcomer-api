@@ -1,27 +1,3 @@
-# from user_service.models import Client
-# from django.http import HttpResponse, JsonResponse
-# from rest_framework import permissions, generics
-# from rest_framework.response import Response
-# from rest_framework.decorators import action
-# from rest_framework.generics import CreateAPIView
-# from rest_framework.authtoken.models import Token
-# from django.shortcuts import render
-# from .serializers import ClientSerializer
-# from django.shortcuts import get_object_or_404
-# from rest_framework.decorators import api_view
-# from rest_framework.status import (
-#     HTTP_403_FORBIDDEN,
-#     HTTP_200_OK,
-#     HTTP_404_NOT_FOUND,
-#     HTTP_400_BAD_REQUEST,
-# )
-# class ClientList(generics.ListCreateAPIView):
-#     queryset = Client.objects.all()
-#     serializer_class = ClientSerializer
-
-#     queryset = Client.objects.all()
-# class ClientDetail(generics.RetrieveUpdateDestroyAPIView):
-#     serializer_class = ClientSerializer
 from django.http import HttpResponse, JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -29,79 +5,67 @@ from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.models import User
 
 from user_service.models import (
   Profile
 )
 from user_service.api.serializers import (
-  UserSerializer
+  UserSerializer,
+  ProfileSerializer
 )
-
-# @api_view(['POST'])
-# def register_client(request):
-#     serializer = ClientSerializer(data=request.data)
-#     data = {}
-
-#     if serializer.is_valid():
-#         order = serializer.save()
-#         data['response'] = 'Usuário registrado com sucesso'
-
-#     else:
-#         data = serializer.errors
-
-#     return Response(data)
 
 @api_view(["GET"])
 def users(request):
+  """
+    List all users
+  """
   users = Profile.objects.all()
-  serializer = UserSerializer(users, many=True)
+  serializer = ProfileSerializer(users, many=True)
   return JsonResponse(serializer.data, safe=False)
 
 
 @api_view(["GET", "POST", "DELETE", "PUT"])
-def user(request):
-  print("CRUD USER")
-  # users = Profile.objects.all()
-  # serializer = UserSerializer(users, many=True)
-  # return JsonResponse(serializer.data, safe=False)
+def user(request, id):
+  """
+    List, create, update or delete a user
+  """
+  try:
+    profile = Profile.objects.get(pk=id)
+  except:
+    return JsonResponse({"message": "Usuário não existe"}, status=404)
 
-# @api_view(['DELETE'])
-# def delete_client(request, registro):
+  if request.method == 'GET':
+    serializer = UserSerializer(profile)
+    return JsonResponse(serializer.data)
 
-#     # If request is valid
-#     client = Client.objects.get(pk=registro)
-#     if (registro == None):
-#         return Response({'error': 'Formulário inválido.'},
-#                                 status=HTTP_400_BAD_REQUEST)
-#     # If order exist
-#     try:
-#         client = Client.objects.get(pk=registro)
-#     except:
-#         return Response({'error': 'Produto não existe.'},
-#                                 status=HTTP_404_NOT_FOUND)
-#     client.delete()
-#     return HttpResponse(status=204)
-
-
-# @api_view(["POST"])
-# def edit_client(request, registro):
-#     client = Client.objects.get(pk=registro)
-#     first_name = request.data.get('first_name')
-#     last_name = request.data.get('last_name')
-#     email = request.data.get('email')
-
-
-#     if(registro == None):
-#         return Response({'error':'Falha na requisição.'},status=HTTP_400_BAD_REQUEST)
-
-#     try:
-#         client = Client.objects.get(pk=registro)
-#     except:
-#         return Response({'error': 'Cliente não existe.'},
-#                                 status=HTTP_404_NOT_FOUND)
-#     serializer = ClientSerializer(client, request.data)
-#     if serializer.is_valid():
-#         serializer.save()
-#         return Response(serializer.data)
-#     else:
-#         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+  elif request.method == 'PUT':
+    data = JSONParser().parse(request)
+    serializer = UserSerializer(profile, data=data)
+    if serializer.is_valid():
+      serializer.save()
+      return JsonResponse(serializer.data)
+    return JsonResponse(serializer.errors, status=400)
+  
+  elif request.method == 'POST':
+    data = JSONParser().parse(request)
+    # Validação dos dados
+    try:
+      exist_cpf = Profile.objects.get(cpf=data['cpf'])
+    except:
+      pass
+    
+    if (exist_cpf):
+      return JsonResponse({"msg": "Este usuário já existe"}, status=404)
+    return Response("Oi")
+    # serializerUser = UserSerializer(data=data)
+    # serializerProfile = ProfileSerializer(data=data)
+    # if serializerUser.is_valid() and serializerProfile.is_valid():
+      # return Response({"msg": "Ok"})
+      # exist_cpf = Profile.objects.get(cpf=data['cpf'])
+      # serializerUser.save()
+    # return Response({"msg": "Falha"})
+    
+  elif request.method == 'DELETE':
+    profile.delete()
+    return HttpResponse(status=204)
