@@ -47,3 +47,7 @@ migrate:
 test:
 	# run unit tests
 	docker-compose run api python manage.py test
+
+shell:
+	# run python shell
+	docker-compose run api python manage.py shell

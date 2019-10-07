@@ -11,4 +11,4 @@ class UserSerializer(ModelSerializer):
 class ProfileSerializer(ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['cpf']
+        fields = '__all__'
