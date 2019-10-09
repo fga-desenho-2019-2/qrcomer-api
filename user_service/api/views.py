@@ -6,12 +6,12 @@ from rest_framework.decorators import api_view
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
+from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST, HTTP_201_CREATED
 
 from user_service.models import (
   Profile
 )
 from user_service.api.serializers import (
-  UserSerializer,
   ProfileSerializer
 )
 
@@ -25,47 +25,44 @@ def users(request):
   return JsonResponse(serializer.data, safe=False)
 
 
-@api_view(["GET", "POST", "DELETE", "PUT"])
-def user(request, id):
+@api_view(['GET'])
+def get_user(request, cpf):
   """
-    List, create, update or delete a user
+    List a user
   """
-  try:
-    profile = Profile.objects.get(pk=id)
-  except:
-    return JsonResponse({"message": "Usuário não existe"}, status=404)
+  profile = Profile.objects.filter(cpf=cpf)
+  if not profile:
+    return JsonResponse({"message": "User not exists"}, status=HTTP_404_NOT_FOUND)
+  serializer = ProfileSerializer(profile, many=True)
+  data = serializer.data
+  return Response(data, status=HTTP_200_OK)
 
-  if request.method == 'GET':
-    serializer = UserSerializer(profile)
-    return JsonResponse(serializer.data)
 
-  elif request.method == 'PUT':
-    data = JSONParser().parse(request)
-    serializer = UserSerializer(profile, data=data)
-    if serializer.is_valid():
-      serializer.save()
-      return JsonResponse(serializer.data)
-    return JsonResponse(serializer.errors, status=400)
-  
-  elif request.method == 'POST':
-    data = JSONParser().parse(request)
-    # Validação dos dados
-    try:
-      exist_cpf = Profile.objects.get(cpf=data['cpf'])
-    except:
-      pass
-    
-    if (exist_cpf):
-      return JsonResponse({"msg": "Este usuário já existe"}, status=404)
-    return Response("Oi")
-    # serializerUser = UserSerializer(data=data)
-    # serializerProfile = ProfileSerializer(data=data)
-    # if serializerUser.is_valid() and serializerProfile.is_valid():
-      # return Response({"msg": "Ok"})
-      # exist_cpf = Profile.objects.get(cpf=data['cpf'])
-      # serializerUser.save()
-    # return Response({"msg": "Falha"})
-    
-  elif request.method == 'DELETE':
-    profile.delete()
-    return HttpResponse(status=204)
+@api_view(["POST"])
+def post_user(request):
+  data = JSONParser().parse(request)
+  new_user = ProfileSerializer(data=data)
+  if new_user.is_valid():
+    new_user.save()
+    # Ajustar para retornar token do usuário
+    return Response(new_user.data, status=HTTP_201_CREATED)
+  else:
+    # Ajustar mensagem de retorno
+    return Response({"message": "Can not create user"}, status=HTTP_400_BAD_REQUEST)
+
+
+@api_view(["PATCH"])
+def patch_user(request, cpf):
+  profile = Profile.objects.filter(cpf=cpf)
+  if not profile:
+    return JsonResponse({"message": "User not exists"}, status=HTTP_404_NOT_FOUND)
+  return Response("Nada")
+
+
+
+@api_view(["DELETE"])
+def delete_user(request, cpf):
+  profile = Profile.objects.filter(cpf=cpf)
+  if not profile:
+    return JsonResponse({"message": "User not exists"}, status=HTTP_404_NOT_FOUND)
+  return Response("Nada")
