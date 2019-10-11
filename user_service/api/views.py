@@ -25,13 +25,10 @@ class CreateUserProfile(CreateAPIView):
 class UserProfile(APIView):
 
     serializer_class = ProfileSerializer
-    queryset = Profile.objects.all()
 
     def get(self, request, cpf):
-        profile = self.queryset.filter(cpf=cpf)
-        serializer = self.serializer_class(profile)
-        if not serializer:
-            return Response({"message": "User not exists"}, status=status.HTTP_404_NOT_FOUND)
+        profile = get_object_or_404(Profile, cpf=cpf)
+        serializer = ProfileSerializer(profile)
         return Response({'profile': serializer.data}, status=status.HTTP_200_OK)
 
 
