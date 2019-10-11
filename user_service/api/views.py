@@ -3,12 +3,12 @@ from rest_framework import status
 from ..models import Profile
 from .serializers import ProfileSerializer
 from django.shortcuts import get_object_or_404
-from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, ListCreateAPIView
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 
 
-class CreateUserProfile(APIView):
+class CreateUserProfile(CreateAPIView):
 
     serializer_class = ProfileSerializer
 
@@ -24,16 +24,15 @@ class CreateUserProfile(APIView):
 
 class UserProfile(APIView):
 
-    serializer = ProfileSerializer
+    serializer_class = ProfileSerializer
+    queryset = Profile.objects.all()
 
     def get(self, request, cpf):
-        profile = get_object_or_404(Profile, cpf=cpf)
-        serializer = ProfileSerializer(profile)
-
-        if serializer:
-            return Response({'profile': serializer.data})
-        else:
-            return Response({'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        profile = self.queryset.filter(cpf=cpf)
+        serializer = self.serializer_class(profile)
+        if not serializer:
+            return Response({"message": "User not exists"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'profile': serializer.data}, status=status.HTTP_200_OK)
 
 
 class UserProfileView(APIView):
@@ -50,7 +49,7 @@ class UserProfileView(APIView):
         return Response(data, status=status.HTTP_200_OK)
 
 #
-# class UserProfile(APIView):
+#
 #
 #
 

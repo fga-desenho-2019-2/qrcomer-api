@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CreateUserProfile, UserProfileView, UserProfile
+from .views import CreateUserProfile, UserProfile, UserProfileView
 from django.conf.urls import url, include
 
 urlpatterns = [
