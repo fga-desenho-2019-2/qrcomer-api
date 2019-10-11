@@ -1,68 +1,73 @@
-from django.http import HttpResponse, JsonResponse
-from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.parsers import JSONParser
-from rest_framework.decorators import api_view
+from rest_framework import status
+from ..models import Profile
+from .serializers import ProfileSerializer
 from django.shortcuts import get_object_or_404
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.models import User
-from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST, HTTP_201_CREATED
-
-from user_service.models import (
-  Profile
-)
-from user_service.api.serializers import (
-  ProfileSerializer
-)
-
-@api_view(["GET"])
-def users(request):
-  """
-    List all users
-  """
-  users = Profile.objects.all()
-  serializer = ProfileSerializer(users, many=True)
-  return JsonResponse(serializer.data, safe=False)
+from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework.views import APIView
+from rest_framework.decorators import api_view
 
 
-@api_view(['GET'])
-def get_user(request, cpf):
-  """
-    List a user
-  """
-  profile = Profile.objects.filter(cpf=cpf)
-  if not profile:
-    return JsonResponse({"message": "User not exists"}, status=HTTP_404_NOT_FOUND)
-  serializer = ProfileSerializer(profile, many=True)
-  data = serializer.data
-  return Response(data, status=HTTP_200_OK)
+class CreateUserProfile(APIView):
+
+    serializer_class = ProfileSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            # Ajustar mensagem de retorno
+            return Response({"Error": "Cannot create user"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(["POST"])
-def post_user(request):
-  data = JSONParser().parse(request)
-  new_user = ProfileSerializer(data=data)
-  if new_user.is_valid():
-    new_user.save()
-    # Ajustar para retornar token do usuário
-    return Response(new_user.data, status=HTTP_201_CREATED)
-  else:
-    # Ajustar mensagem de retorno
-    return Response({"message": "Can not create user"}, status=HTTP_400_BAD_REQUEST)
+class UserProfile(APIView):
+
+    serializer = ProfileSerializer
+
+    def get(self, request, cpf):
+        profile = get_object_or_404(Profile, cpf=cpf)
+        serializer = ProfileSerializer(profile)
+
+        if serializer:
+            return Response({'profile': serializer.data})
+        else:
+            return Response({'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(["PATCH"])
-def patch_user(request, cpf):
-  profile = Profile.objects.filter(cpf=cpf)
-  if not profile:
-    return JsonResponse({"message": "User not exists"}, status=HTTP_404_NOT_FOUND)
-  return Response("Nada")
+class UserProfileView(APIView):
+
+    serializer_class = ProfileSerializer
+
+    def get(self, request):
+
+        profile = Profile.objects.all()
+        if not profile:
+            return Response({"message": "User not exists"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = ProfileSerializer(profile, many=True)
+        data = serializer.data
+        return Response(data, status=status.HTTP_200_OK)
+
+#
+# class UserProfile(APIView):
+#
+#
 
 
-
-@api_view(["DELETE"])
-def delete_user(request, cpf):
-  profile = Profile.objects.filter(cpf=cpf)
-  if not profile:
-    return JsonResponse({"message": "User not exists"}, status=HTTP_404_NOT_FOUND)
-  return Response("Nada")
+    #
+    # @api_view(["PATCH"])
+    # def patch_user(request, cpf):
+    #     profile = Profile.objects.filter(cpf=cpf)
+    #     if not profile:
+    #         return JsonResponse({"message": "User not exists"}, status=HTTP_404_NOT_FOUND)
+    #     return Response("Nada")
+    #
+    #
+    #
+    # @api_view(["DELETE"])
+    # def delete_user(request, cpf):
+    #     profile = Profile.objects.filter(cpf=cpf)
+    #     if not profile:
+    #         return JsonResponse({"message": "User not exists"}, status=HTTP_404_NOT_FOUND)
+    #     return Response("Nada")

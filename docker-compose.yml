@@ -5,6 +5,7 @@ services:
     container_name: user-service
     build: .
     environment:
+      DB_NAME: user_db
       DB_USER: admin
       DB_PASS: admin
     command: python manage.py runserver 0.0.0.0:8000

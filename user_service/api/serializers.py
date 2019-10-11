@@ -1,9 +1,11 @@
-from rest_framework.serializers import ModelSerializer
-from user_service.models import Profile
-from django.contrib.auth.models import User
+from rest_framework import serializers
+from ..models import Profile
+# from django.contrib.auth.models import User
 
 
-class ProfileSerializer(ModelSerializer):
+class ProfileSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Profile
         fields = '__all__'
+        read_only_fields = ['is_staff', 'date_joined', 'last_login']

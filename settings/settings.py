@@ -81,7 +81,7 @@ DOCKER = True
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'user_db',
+        'NAME': os.getenv('DB_NAME', 'user_db'),
         'USER': os.getenv('DB_USER', 'admin'),
         'PASSWORD': os.getenv('DB_PASS', 'admin'),
         'HOST': os.getenv('DB_HOST', 'db'),
