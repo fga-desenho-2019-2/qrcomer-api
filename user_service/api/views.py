@@ -19,7 +19,7 @@ class CreateUserProfile(CreateAPIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             # Ajustar mensagem de retorno
-            return Response({"Error": "Cannot create user"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"Error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserProfile(APIView):
