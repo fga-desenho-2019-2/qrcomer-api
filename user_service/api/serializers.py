@@ -8,4 +8,4 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = '__all__'
-        read_only_fields = ['is_staff', 'date_joined', 'last_login']
+        read_only_fields = ['date_joined', 'last_login', 'user_permissions', 'groups']

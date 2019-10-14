@@ -2,3 +2,5 @@ django>=2.0
 djangorestframework>=3.10
 psycopg2==2.8.3
 django-rest-swagger
+djangorestframework_simplejwt
+djangorestframework-jwt
