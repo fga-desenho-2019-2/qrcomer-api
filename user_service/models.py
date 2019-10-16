@@ -6,21 +6,6 @@ from django.utils import timezone
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, cpf, password, birth_date, sex, first_name, last_name):
-        if not email:
-            raise ValueError('User must have an Email')
-        if not password:
-            raise ValueError('User must have a Password')
-        if not cpf:
-            raise ValueError('User must have a CPF')
-        if not birth_date:
-            raise ValueError('User must have a birth day')
-        if not sex:
-            raise ValueError('User must have a gender')
-        if not first_name:
-            raise ValueError('User must have a first name')
-        if not last_name:
-            raise ValueError('User must have a last name')
-
         user = self.model(
             email=self.normalize_email(email)
         )
@@ -37,21 +22,6 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, cpf, password, birth_date, sex, first_name, last_name):
-        if not email:
-            raise ValueError('User must have an Email')
-        if not password:
-            raise ValueError('User must have a Password')
-        if not cpf:
-            raise ValueError('User must have a CPF')
-        if not birth_date:
-            raise ValueError('User must have a birth day')
-        if not sex:
-            raise ValueError('User must have a gender')
-        if not first_name:
-            raise ValueError('User must have a first name')
-        if not last_name:
-            raise ValueError('User must have a last name')
-
         user = self.model(
             email=self.normalize_email(email)
         )
@@ -74,13 +44,14 @@ class CustomUserManager(BaseUserManager):
 class Profile(AbstractBaseUser, PermissionsMixin):
 
     cpf = models.CharField(unique=True, max_length=11)
-    password = models.CharField(max_length=128, verbose_name='password')
+    password = models.CharField(max_length=128)
     email = models.EmailField(unique=True)
-    first_name = models.CharField(max_length=30, blank=False)
-    last_name = models.CharField(max_length=150)
+    first_name = models.CharField(max_length=30, blank=True, null=True)
+    last_name = models.CharField(max_length=150, blank=True, null=True)
     sex = models.CharField(max_length=1)
-    birth_date = models.DateField()
-    is_staff = models.BooleanField(default=False)
+    birth_date = models.DateField(verbose_name='data de nascimento')
+    is_staff = models.BooleanField(default=False, verbose_name='administrador')
+    is_superuser = models.BooleanField(default=False, verbose_name='superusuario')
     date_joined = models.DateTimeField(default=timezone.now)
 
     USERNAME_FIELD = 'email'
