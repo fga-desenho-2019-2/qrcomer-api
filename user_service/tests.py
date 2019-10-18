@@ -9,11 +9,17 @@ from .api.serializers import ProfileSerializer
 class ProfileUserTest(APITestCase):
     def test_register_client_with_correct_params(self):
         # If user was successfully created
-        request_1 = {'cpf': '06592202170', 'first_name': 'Matheus', 'last_name': 'Blanco',
-                     'email': 'msallesblanco2gmail.com', 'password': '12345678', 'is_staff': True,
-                     'birth_date': '1996-05-15', 'sex': 'M'}
-        response_1 = self.post('/api/user/', request_1)
-        self.assertEqual(response_1.status_code, 200)
+        request_1 = {
+            "cpf": "232322333",
+            "password": "password",
+            "birth_date": "1997-04-01",
+            "sex": "m",
+            "email": "email@gmail.com",
+            "first_name": "Elias",
+            "last_name": "Bernardo"
+        }
+        response_1 = self.client.post('/api/user/', request_1)
+        self.assertEqual(response_1.status_code, 201)
 
     def test_register_client_with_status_0(self):
 
