@@ -71,3 +71,20 @@ class Profile(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
+class Card(models.Model):
+
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    number = models.CharField(unique=True, primary_key=True, max_length=16, blank=False)
+    cvv = models.CharField(blank=False, null=False, max_length=3)
+    validation = models.DateField(verbose_name='Validade')
+    holder_name = models.CharField(max_length=30, blank=False)
+    cpf_cnpj = models.CharField(max_length=20, blank=False)
+
+    class Meta:
+        verbose_name = u'Card'
+        verbose_name_plural = u'Cards'
+
+    def __str__(self):
+        return self.number
