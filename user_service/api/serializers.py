@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from ..models import Profile
+from ..models import Profile, Card
 from django.contrib.auth.hashers import make_password
 # from django.contrib.auth.models import User
 
@@ -29,3 +29,10 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ['id', 'cpf', 'first_name', 'last_name', 'birth_date', 'sex', 'email', 'password']
         read_only_fields = ['date_joined', 'last_login', 'user_permissions', 'groups', 'is_superuser', 'is_staff']
         extra_kwargs = {'password': {'write_only': True}}
+
+
+class CardSerialzer(serializers.ModelSerializer):
+
+    class Meta: 
+        model = Card
+        fields = '__all__'
