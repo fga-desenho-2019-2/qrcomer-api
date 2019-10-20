@@ -11,7 +11,9 @@ class ProfileSerializer(serializers.ModelSerializer):
             email=validated_data["email"],
             cpf=validated_data["cpf"],
             birth_date=validated_data['birth_date'],
-            sex=validated_data['sex']
+            sex=validated_data['sex'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
         )
         user.set_password(validated_data["password"])
         user.save()
