@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from ..models import Profile
 import datetime
-from dateutil.relativedelta import relativedelta
+# from dateutil.relativedelta import relativedelta
 from django.contrib.auth.hashers import make_password
 # from django.contrib.auth.models import User
 
@@ -13,7 +13,9 @@ class ProfileSerializer(serializers.ModelSerializer):
             email=validated_data["email"],
             cpf=validated_data["cpf"],
             birth_date=validated_data['birth_date'],
-            sex=validated_data['sex']
+            sex=validated_data['sex'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
         )
         user.set_password(validated_data["password"])
         user.save()
@@ -36,7 +38,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def validate_cpf(self, value):
         if len(value) != 11:
-            raise serializers.ValidationError("Invalid CPF size!!")
+            raise serializers.ValidationError("Invalid CPF size!")
         else:
             sum = 0
             first_digit_validator = 0
@@ -57,10 +59,16 @@ class ProfileSerializer(serializers.ModelSerializer):
             if first_digit_validator == value[-2] and second_digit_validator == value[-1]:
                 return value
             else:
-                raise serializers.ValidationError("Invalid CPF digits!!")
+                raise serializers.ValidationError("Invalid CPF digits!")
     
     def validate_birth_date(self, value): 
         # Check if user age >= 18
         if (datetime.date.today() - value) < datetime.timedelta(days=365*18):
             raise serializers.ValidationError("Invalid date!!")
+        return value
+
+    def validate_password(self, value):
+        # Check the minimum size of password
+        if len(value) < 4:
+            raise serializers.ValidationError('Required 4 or more digits to password!')
         return value
