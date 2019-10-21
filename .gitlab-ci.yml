@@ -45,6 +45,8 @@ tests:
     - pip install pytest
     - pip install -r requirements.txt
   script:
+    - ./manage.py makemigrations
+    - ./manage.py migrate
     - ./manage.py test
   <<: *all_branches
 
@@ -70,3 +72,13 @@ build image:
     - docker build -t $IMAGE .
     - docker push $IMAGE
   <<: *all_branches
+
+deploy image:
+  stage: deploy
+  image: diemscott/rancher-cli-k8s:v2.0.2
+  script:
+    - echo 1 | rancher login -t "$RANCHER_API_TOKEN" "$RANCHER_SERVER_URL"
+    - rancher context switch "$CONTEXT_HOMOLOG"
+    - rancher kubectl -n homolog scale --current-replicas=1 --replicas=0 deployment/user-service
+    - rancher kubectl -n homolog scale --current-replicas=0 --replicas=1 deployment/user-service
+  <<: *protected_branches

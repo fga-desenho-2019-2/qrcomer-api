@@ -27,7 +27,7 @@ SECRET_KEY = '!a9gxi*iwk1%i$u9*o1ru$2@&(abx_h#-lmd&!lg8r_frs=5u4'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '0.0.0.0']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -92,7 +92,7 @@ DATABASES = {
         'USER': os.getenv('DB_USER', 'admin'),
         'PASSWORD': os.getenv('DB_PASS', 'admin'),
         'HOST': os.getenv('DB_HOST', 'db'),
-        'PORT': 5432,
+        'PORT': os.getenv('DB_PORT', 5432),
     }
 }
 
