@@ -4,7 +4,16 @@ from django.contrib.auth.hashers import make_password
 # from django.contrib.auth.models import User
 
 
+class CardSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Card
+        fields = '__all__'
+
+
 class ProfileSerializer(serializers.ModelSerializer):
+
+    # user_cards = CardSerializer(read_only=True)
 
     def create(self, validated_data):
         user = Profile(
@@ -31,10 +40,3 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ['id', 'cpf', 'first_name', 'last_name', 'birth_date', 'sex', 'email', 'password']
         read_only_fields = ['date_joined', 'last_login', 'user_permissions', 'groups', 'is_superuser', 'is_staff']
         extra_kwargs = {'password': {'write_only': True}}
-
-
-class CardSerialzer(serializers.ModelSerializer):
-
-    class Meta: 
-        model = Card
-        fields = '__all__'

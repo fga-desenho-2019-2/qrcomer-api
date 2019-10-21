@@ -75,12 +75,14 @@ class Profile(AbstractBaseUser, PermissionsMixin):
 
 class Card(models.Model):
 
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    number = models.CharField(unique=True, primary_key=True, max_length=16, blank=False)
+    profile = models.OneToOneField(Profile, on_delete=models.PROTECT, related_name='card')
+    number = models.CharField(unique=True, max_length=16, blank=False)
     cvv = models.CharField(blank=False, null=False, max_length=3)
     validation = models.DateField(verbose_name='Validade')
     holder_name = models.CharField(max_length=30, blank=False)
     cpf_cnpj = models.CharField(max_length=20, blank=False)
+
+    REQUIRED_FIELDS = ['profile']
 
     class Meta:
         verbose_name = u'Card'
