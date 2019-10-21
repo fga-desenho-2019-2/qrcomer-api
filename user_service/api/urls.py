@@ -12,6 +12,6 @@ urlpatterns = [
   ## user cards urls
 
   path('user/card/', UserCardCreate.as_view(), name='post-user-card'),
-  path('user/card/<int:id>', UserCardGetData.as_view(), name='get-user-card'),
+  path('user/card/<int:profile_id>', UserCardGetData.as_view(), name='get-user-card'),
   # path('user/card/<int:id>', UserCardsUpdate.as_view(), name='patch-user-card')
 ]

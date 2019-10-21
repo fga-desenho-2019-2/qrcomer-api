@@ -5,7 +5,7 @@ from django.utils import timezone
 
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, email, cpf, password, birth_date, sex, first_name, last_name):
+    def create_user(self, email, cpf, password, birth_date, sex, first_name, last_name, card):
         user = self.model(
             email=self.normalize_email(email)
         )
@@ -14,6 +14,7 @@ class CustomUserManager(BaseUserManager):
         user.sex = sex
         user.first_name = first_name
         user.last_name = last_name
+        user.card = card
         user.set_password(password)
         user.is_staff = False
         user.is_active = True
@@ -74,13 +75,12 @@ class Profile(AbstractBaseUser, PermissionsMixin):
 
 
 class Card(models.Model):
-
-    profile = models.OneToOneField(Profile, on_delete=models.PROTECT, related_name='card')
-    number = models.CharField(unique=True, max_length=16, blank=False)
-    cvv = models.CharField(blank=False, null=False, max_length=3)
+    number = models.CharField(primary_key=True, unique=True, max_length=16, blank=False, verbose_name='número')
+    cvv = models.CharField(blank=False, null=False, max_length=3, verbose_name='codigo de segurança')
     validation = models.DateField(verbose_name='Validade')
-    holder_name = models.CharField(max_length=30, blank=False)
-    cpf_cnpj = models.CharField(max_length=20, blank=False)
+    holder_name = models.CharField(max_length=30, blank=False, verbose_name='Nome do proprietário')
+    cpf_cnpj = models.CharField(max_length=20, blank=False, verbose_name='Cpf/Cnpj do proprietário')
+    profile = models.ManyToManyField(Profile)
 
     REQUIRED_FIELDS = ['profile']
 

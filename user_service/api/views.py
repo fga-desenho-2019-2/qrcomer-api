@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import status
 from ..models import Profile, Card
-from .serializers import ProfileSerializer, CardSerializer
+from .serializers import ProfileSerializer, CardSerializer, UserCardSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
@@ -27,12 +27,15 @@ class CreateUserProfile(SessionView):
             return Response({"Error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserProfile(SessionView):
+class UserProfile(generics.UpdateAPIView):
 
     serializer_class = ProfileSerializer
+    queryset = Profile.objects.all()
 
+
+    # lookup fields
     def get(self, request, id):
-        profile = get_object_or_404(Profile, id=id)
+        profile = get_object_or_404(Profile, pk=id)
         serializer = ProfileSerializer(profile)
         return Response({'profile': serializer.data}, status=status.HTTP_200_OK)
 
@@ -67,10 +70,13 @@ class UserCardCreate(SessionView):
 
 class UserCardGetData(SessionView):
 
-    def get(self, request, id):
-        card = get_object_or_404(Card, profile_id=id)
-        serializer = CardSerializer(card)
-        return Response({'Card': serializer.data}, status=status.HTTP_200_OK)
+    def get(self, request, *args, **kwargs):
+
+        user_data = Profile.objects.all()
+
+        user_cards_serializer = UserCardSerializer(user_data, many=True)
+
+        return Response(user_cards_serializer.data, status=status.HTTP_200_OK)
 
 
 # class UserCardsUpdate(generics.UpdateAPIView):

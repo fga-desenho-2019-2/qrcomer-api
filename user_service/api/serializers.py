@@ -11,6 +11,15 @@ class CardSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class UserCardSerializer(serializers.ModelSerializer):
+
+    user_card = CardSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Profile
+        fields = ['id', 'email', 'user_card']
+
+
 class ProfileSerializer(serializers.ModelSerializer):
 
     # user_cards = CardSerializer(read_only=True)
