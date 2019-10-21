@@ -5,6 +5,7 @@ services:
     container_name: user-service
     build: .
     environment:
+      DB_NAME: user_db
       DB_USER: admin
       DB_PASS: admin
       GATEWAY_PATH: http://api-gateway:5000

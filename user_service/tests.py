@@ -1,53 +1,117 @@
-from django.test import TestCase
-from .models import Client
 from rest_framework.test import APITestCase
-import json
-from django.core import serializers
-from .serializers import ClientSerializer
-
-class CheckCLientAPITest(APITestCase):
-
-    def test_register_client_with_correct_params(self):
-        # If user was successfully created
-        request_1 = {'registro':'123', 'first_name':'Matheus', 'last_name':'Blanco', 'email':'msallesblanco2gmail.com', 'password':'12345678', 'cpf':'065.822.021-70'}
-        response_1 = self.client.post('/register_client/', request_1)
-        self.assertEqual(response_1.status_code, 200)
-
-    def test_register_client_with_status_0(registro, status=0):
-
-        registro = 1
-        first_name = 'xiu'
-        last_name = 'xau'
-        email = 'xiuxau@gmail.com'
-        password = '12345698'
-        cpf = '065.922.021-70'
+from rest_framework import status
+from .models import Profile
+from django.urls import reverse
 
 
-        Client.objects.create(
-            registro = registro,
-            first_name = first_name,
-            last_name = last_name,
-            email = email,
-            password = password,
-            cpf = cpf
-        )
+class ProfileUserTest(APITestCase):
+    url = reverse('post_user')
 
-    def test_delete_client_with_wrong_id(self):
-        request_1 = {'registro':'123', 'first_name':'Matheus', 'last_name':'Blanco', 'email':'msallesblanco2gmail.com', 'password':'12345678', 'cpf':'065.822.021-70'}
-        self.client.post('/delete_client/', request_1)
+    def test_create_profile(self):
 
-        # INTERNAL REQUEST ERROR if order does not exist
-        request_2 = {'registro': 'p'}
-        response_2 = self.client.post('/delete_client/', request_2)
-        self.assertEqual(response_2.status_code, 404)
+        data = {
+                'cpf': '06066875132',
+                'first_name': 'Leonardo',
+                'last_name': 'barreiros',
+                'birth_date': '1996-11-14',
+                'sex': 'm',
+                'email': 'leossb@teste.com',
+                'password': 'teste@!'
+        }
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Profile.objects.count(), 1)
 
-    def test_list_clients(self):
-        request_1 = {}
-        response_1 = self.client.post('/list_clients/', request_1)
-        self.assertEqual(response_1.status_code, 200)
+    def test_create_profile_with_wrong_cpf_number_values(self):
+        data = {
+            'cpf': '68532168532',
+            'first_name': 'Leonardo',
+            'last_name': 'barreiros',
+            'birth_date': '1996-11-14',
+            'sex': 'm',
+            'email': 'leossb@teste.com',
+            'password': 'teste@!'
+        }
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_edit_client_with_missing_params(self):
-        request_1 = {'registro':'123', 'first_name':'Matheus', 'last_name':'Blanco', 'email':'msallesblanco2gmail.com', 'password':'12345678', 'cpf':'065.822.021-70'}
-        response_1 = self.client.post('/register_client/', request_1)
-        response_1 = self.client.post('edit_client/', request_1)
-        self.assertEqual(response_1.status_code, 404)
+
+    def test_create_profile_with_wrong_cpf_format(self):
+        data = {
+            'cpf': '653210',
+            'first_name': 'Leonardo',
+            'last_name': 'barreiros',
+            'birth_date': '1996-11-14',
+            'sex': 'm',
+            'email': 'leossb@teste.com',
+            'password': 'teste@!'
+        }
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_profile_with_wrong_password(self):
+        data = {
+            'cpf': '06066875132',
+            'first_name': 'Leonardo',
+            'last_name': 'barreiros',
+            'birth_date': '1996-11-14',
+            'sex': 'm',
+            'email': 'leossb@teste.com',
+            'password': 'asd'
+        }
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_profile_without_first_name(self):
+        data = {
+            'cpf': '06066875132',
+            'first_name': '',
+            'last_name': 'barreiros',
+            'birth_date': '1996-11-14',
+            'sex': 'm',
+            'email': 'leossb@teste.com',
+            'password': 'teste@!'
+        }
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Profile.objects.count(), 1)
+
+    def test_create_profile_without_last_name(self):
+        data = {
+            'cpf': '06066875132',
+            'first_name': 'Leonardo',
+            'last_name': '',
+            'birth_date': '1996-11-14',
+            'sex': 'm',
+            'email': 'leossb@teste.com',
+            'password': 'teste@!'
+        }
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Profile.objects.count(), 1)
+
+    def test_create_profile_with_wrong_birth_date_format(self):
+        data = {
+            'cpf': '06066875132',
+            'first_name': 'Leonardo',
+            'last_name': '',
+            'birth_date': '15-11-1996',
+            'sex': 'm',
+            'email': 'leossb@teste.com',
+            'password': 'teste@!'
+        }
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_profile_with_birth_date_less_than_eighteen(self):
+        data = {
+            'cpf': '06066875132',
+            'first_name': 'Leonardo',
+            'last_name': '',
+            'birth_date': '2005-08-20',
+            'sex': 'm',
+            'email': 'leossb@teste.com',
+            'password': 'teste@!'
+        }
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
