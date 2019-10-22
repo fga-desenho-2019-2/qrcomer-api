@@ -32,10 +32,8 @@ class UserProfile(generics.UpdateAPIView):
     serializer_class = ProfileSerializer
     queryset = Profile.objects.all()
 
-
-    # lookup fields
-    def get(self, request, id):
-        profile = get_object_or_404(Profile, pk=id)
+    def get(self, request, pk):
+        profile = get_object_or_404(Profile, pk=pk)
         serializer = ProfileSerializer(profile)
         return Response({'profile': serializer.data}, status=status.HTTP_200_OK)
 
@@ -46,7 +44,7 @@ class UserProfileView(SessionView):
 
     def get(self, request):
 
-        profile = Profile.objects.all()
+        profile = Profile.objects.filter(status_user=True)
         if not profile:
             return Response({"message": "User not exists"}, status=status.HTTP_404_NOT_FOUND)
         serializer = ProfileSerializer(profile, many=True)
@@ -72,7 +70,9 @@ class UserCardGetData(SessionView):
 
     def get(self, request, *args, **kwargs):
 
-        user_data = Profile.objects.all()
+        user_data = Profile.objects.select_related('user_card')
+
+        user_data = user_data.filter(status_user=True, user_card__profile__cpf='cpf')
 
         user_cards_serializer = UserCardSerializer(user_data, many=True)
 

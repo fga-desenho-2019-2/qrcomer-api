@@ -5,13 +5,13 @@ from django.utils import timezone
 
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, email, cpf, password, birth_date, sex, first_name, last_name, card):
+    def create_user(self, email, cpf, password, birth_date, status_user, first_name, last_name, card):
         user = self.model(
             email=self.normalize_email(email)
         )
         user.cpf = cpf
         user.birth_date = birth_date
-        user.sex = sex
+        user.status_user = status_user
         user.first_name = first_name
         user.last_name = last_name
         user.card = card
@@ -22,16 +22,16 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, cpf, password, birth_date, sex, first_name, last_name):
+    def create_superuser(self, email, cpf, password, birth_date, status_user, first_name, last_name):
         user = self.model(
             email=self.normalize_email(email)
         )
         user.cpf = cpf
         user.birth_date = birth_date
-        user.sex = sex
         user.first_name = first_name
         user.last_name = last_name
         user.set_password(password)
+        user.status_user = status_user
         user.is_staff = True
         user.is_active = True
         user.is_superuser = True
@@ -49,7 +49,7 @@ class Profile(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=30, blank=True, null=True)
     last_name = models.CharField(max_length=150, blank=True, null=True)
-    sex = models.CharField(max_length=1)
+    status_user = models.BooleanField(default=True, verbose_name='status') # soft delete here
     birth_date = models.DateField(verbose_name='data de nascimento')
     is_staff = models.BooleanField(default=False, verbose_name='administrador')
     is_superuser = models.BooleanField(default=False, verbose_name='superusuario')
@@ -80,7 +80,7 @@ class Card(models.Model):
     validation = models.DateField(verbose_name='Validade')
     holder_name = models.CharField(max_length=30, blank=False, verbose_name='Nome do proprietário')
     cpf_cnpj = models.CharField(max_length=20, blank=False, verbose_name='Cpf/Cnpj do proprietário')
-    profile = models.ManyToManyField(Profile)
+    profile = models.ManyToManyField(Profile, related_name='user_card')
 
     REQUIRED_FIELDS = ['profile']
 
