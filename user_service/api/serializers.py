@@ -55,6 +55,8 @@ class ProfileSerializer(serializers.ModelSerializer):
                 sum += int(value[i])*(11-i)
 
             second_digit_validator = str((sum*10) % 11)
+            if second_digit_validator == '10':
+                second_digit_validator = '0'
 
             if first_digit_validator == value[-2] and second_digit_validator == value[-1]:
                 return value
