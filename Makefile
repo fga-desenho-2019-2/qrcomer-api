@@ -46,7 +46,12 @@ migrate:
 
 test:
 	# run unit tests
-	docker-compose run api python manage.py test
+	docker-compose run api bash -c "coverage run manage.py test && coverage report"
+
+test-report:
+	# Create a covarege page based on the tests
+	sudo rm -rf htmlcov
+	docker-compose run api coverage html
 
 shell:
 	# run python shell
