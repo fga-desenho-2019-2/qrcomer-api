@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CreateUserProfile, UserProfile, UserProfileView, UserCardCreate, UserCardGetData#, UserCardsUpdate
+from .views import CreateUserProfile, UserProfile, UserProfileView, UserCardCreate, UserCardGetData
 from django.conf.urls import include
 
 urlpatterns = [
@@ -12,6 +12,6 @@ urlpatterns = [
   ## user cards urls
 
   path('user/card/', UserCardCreate.as_view(), name='post-user-card'),
-  path('user/card/<int:id>', UserCardGetData.as_view(), name='get-user-card'),
+  path('user/card/<int:number>', UserCardGetData.as_view(), name='get-user-card'),
   # path('user/card/<int:id>', UserCardsUpdate.as_view(), name='patch-user-card')
 ]

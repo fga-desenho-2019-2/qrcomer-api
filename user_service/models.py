@@ -80,7 +80,7 @@ class Card(models.Model):
     validation = models.DateField(verbose_name='Validade')
     holder_name = models.CharField(max_length=30, blank=False, verbose_name='Nome do proprietário')
     cpf_cnpj = models.CharField(max_length=20, blank=False, verbose_name='Cpf/Cnpj do proprietário')
-    profile = models.ManyToManyField(Profile, related_name='user_card')
+    profile = models.ManyToManyField(Profile)
 
     REQUIRED_FIELDS = ['profile']
 

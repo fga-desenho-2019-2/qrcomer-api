@@ -1,5 +1,8 @@
 from rest_framework import serializers
 from ..models import Profile, Card
+from rest_framework.response import Response
+from rest_framework import status
+
 from django.contrib.auth.hashers import make_password
 # from django.contrib.auth.models import User
 
@@ -9,15 +12,6 @@ class CardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Card
         fields = '__all__'
-
-
-class UserCardSerializer(serializers.ModelSerializer):
-
-    user_card = CardSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Profile
-        fields = ['id', 'email', 'user_card']
 
 
 class ProfileSerializer(serializers.ModelSerializer):

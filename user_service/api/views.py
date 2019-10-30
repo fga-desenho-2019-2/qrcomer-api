@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import status
 from ..models import Profile, Card
-from .serializers import ProfileSerializer, CardSerializer, UserCardSerializer
+from .serializers import ProfileSerializer, CardSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
@@ -57,7 +57,6 @@ class UserCardCreate(SessionView):
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
-        # print(serializer)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -66,35 +65,14 @@ class UserCardCreate(SessionView):
             return Response({"Error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserCardGetData(SessionView):
+class UserCardGetData(generics.RetrieveUpdateDestroyAPIView):
 
-    def get(self, request, *args, **kwargs):
+    serializer_class = CardSerializer
+    queryset = Card.objects.all()
+    lookup_field = 'number'
 
-        user_data = Profile.objects.select_related('user_card')
+    def get(self, request, number):
 
-        user_data = user_data.filter(status_user=True, user_card__profile__cpf='cpf')
-
-        user_cards_serializer = UserCardSerializer(user_data, many=True)
-
-        return Response(user_cards_serializer.data, status=status.HTTP_200_OK)
-
-
-# class UserCardsUpdate(generics.UpdateAPIView):
-#
-#     serializer_class = CardSerializer
-#
-#     def put(self, request, id):
-#         instance = get_object_or_404(Card, id=id)
-#         context = {
-#             'profile': instance.profile,
-#             'number': instance.number,
-#             'cvv': instance.cvv,
-#             'validation': instance.validation,
-#             'holder_name': instance.holder_name,
-#             'cpf_cnpj': instance.cpf_cnpj
-#         }
-#         serializer = CardSerializer(data=context)
-#         if serializer.is_valid():
-#             self.perform_update(serializer)
-#
-#         return Response(serializer.data)
+        card = get_object_or_404(Card, number=number)
+        serializer = CardSerializer(card)
+        return Response(serializer.data, status=status.HTTP_200_OK)
