@@ -1,9 +1,24 @@
 from rest_framework import serializers
 from ..models import Profile
 import datetime
-# from dateutil.relativedelta import relativedelta
 from django.contrib.auth.hashers import make_password
-# from django.contrib.auth.models import User
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+
+class TokenObtainPairPatchedSerializer(TokenObtainPairSerializer):
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        refresh = self.get_token(self.user)
+        data['refresh'] = str(refresh)
+        data['access'] = str(refresh.access_token)
+
+        # Extra data to Token response
+        data['user_data'] = {
+            'email': self.user.email,
+            'cpf' :self.user.cpf
+        }
+        return data
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -14,8 +29,6 @@ class ProfileSerializer(serializers.ModelSerializer):
             cpf=validated_data["cpf"],
             birth_date=validated_data['birth_date'],
             sex=validated_data['sex'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name'],
         )
         user.set_password(validated_data["password"])
         user.save()

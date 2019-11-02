@@ -1,10 +1,11 @@
 from rest_framework.response import Response
 from rest_framework import status
 from ..models import Profile
-from .serializers import ProfileSerializer
+from .serializers import *
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import authentication
 
 
@@ -12,6 +13,11 @@ class SessionView(APIView):
     authentication_classes = (JSONWebTokenAuthentication, authentication.SessionAuthentication,
                               authentication.BasicAuthentication,)
 
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = TokenObtainPairPatchedSerializer
+
+    token_obtain_pair = TokenObtainPairView.as_view()
+    
 
 class CreateUserProfile(SessionView):
 
