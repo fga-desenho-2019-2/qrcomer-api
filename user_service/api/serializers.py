@@ -58,7 +58,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             if second_digit_validator == '10':
                 second_digit_validator = '0'
 
-            if first_digit_validator == value[-2] and second_digit_validator == value[-1]:
+            if str(first_digit_validator)[0] == value[-2] and str(second_digit_validator)[0] == value[-1]:
                 return value
             else:
                 raise serializers.ValidationError("Invalid CPF digits!")
