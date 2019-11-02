@@ -6,6 +6,8 @@ djangorestframework_simplejwt
 djangorestframework-jwt
 django-cors-headers==3.1.1
 python-dateutil
+
+# Testing utils
 coverage
 pytest-cov
 factory_boy

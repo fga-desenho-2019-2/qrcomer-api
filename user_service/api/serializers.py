@@ -39,29 +39,26 @@ class ProfileSerializer(serializers.ModelSerializer):
     def validate_cpf(self, value):
         if len(value) != 11:
             raise serializers.ValidationError("Invalid CPF size!")
-        else:
-            sum = 0
-            first_digit_validator = 0
-            second_digit_validator = 0
 
-            for i in range(9):
-                sum += int(value[i])*(10-i)
+        sum = 0
+        first_digit_validator = 0
+        second_digit_validator = 0
 
-            first_digit_validator = str((sum*10) % 11)
+        for i in range(9):
+            sum += int(value[i])*(10-i)
 
-            sum = 0
+        first_digit_validator = str((sum*10) % 11)
 
-            for i in range(10):
-                sum += int(value[i])*(11-i)
+        sum = 0
 
-            second_digit_validator = str((sum*10) % 11)
-            if second_digit_validator == '10':
-                second_digit_validator = '0'
+        for i in range(10):
+            sum += int(value[i])*(11-i)
 
-            if str(first_digit_validator)[0] == value[-2] and str(second_digit_validator)[0] == value[-1]:
-                return value
-            else:
-                raise serializers.ValidationError("Invalid CPF digits!")
+        second_digit_validator = str((sum*10) % 11)
+
+        if str(first_digit_validator)[-1] == value[-2] and str(second_digit_validator)[-1] == value[-1]:
+            return value
+        raise serializers.ValidationError("Invalid CPF digits!")
     
     def validate_birth_date(self, value): 
         # Check if user age >= 18
