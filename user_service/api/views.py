@@ -23,7 +23,6 @@ class CreateUserProfile(SessionView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            # Ajustar mensagem de retorno
             return Response({"Error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
