@@ -25,21 +25,22 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = Profile(
-            email=validated_data["email"],
-            cpf=validated_data["cpf"],
-            birth_date=validated_data['birth_date'],
-            sex=validated_data['sex'],
+            **validated_data
         )
         user.set_password(validated_data["password"])
         user.save()
         return user
 
     def update(self, instance, validated_data):
-        if 'profile' in validated_data:
-            instance.user.password = make_password(
-                validated_data.get('profile').get('password', instance.user.password)
-            )
-            instance.profile.save()
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.birth_date = validated_data.get('birth_date', instance.birth_date)
+        instance.email = validated_data.get('email', instance.email)
+        instance.password = validated_data.get('password', instance.password)
+        instance.cpf = validated_data.get('cpf', instance.cpf)
+        instance.sex = validated_data.get('sex', instance.sex)
+        instance.save()
+        return instance
 
     class Meta:
         model = Profile
