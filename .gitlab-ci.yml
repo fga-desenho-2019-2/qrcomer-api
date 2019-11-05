@@ -58,8 +58,8 @@ radon:
   before_script:
     - pip install radon
   script:
-    - radon mi -j $CI_PROJECT_NAME > mi.radon.json
-    - radon cc -j $CI_PROJECT_NAME > cc.radon.json
+    - radon mi -j user_service > mi.radon.json
+    - radon cc -j user_service > cc.radon.json
   artifacts:
     paths:
       - '*.radon.json'
