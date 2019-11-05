@@ -1,6 +1,7 @@
 stages:
   - lint
   - test
+  - quality
   - build
   - deploy
 
@@ -8,6 +9,7 @@ stages:
   only:
     - /^feature\/+[0-9](-[a-zA-Z0-9_]+)*/ # feature/76-Algum_nome_assim
     - /^bugfix\/+[0-9](-[a-zA-Z0-9_]+)*/ # bugfix/76-Algum_nome_assim
+    - testes-software
     - master
     - develop
     - tags # 0.1.0-rc.1
@@ -48,6 +50,19 @@ tests:
     - ./manage.py makemigrations
     - ./manage.py migrate
     - ./manage.py test
+  <<: *all_branches
+
+radon:
+  image: python:3.6
+  stage: quality
+  before_script:
+    - pip install radon
+  script:
+    - radon mi -j user_service > mi.radon.json
+    - radon cc -j user_service > cc.radon.json
+  artifacts:
+    paths:
+      - '*.radon.json'
   <<: *all_branches
 
 build image:
