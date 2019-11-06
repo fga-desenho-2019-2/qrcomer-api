@@ -50,13 +50,14 @@ class Profile(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=30, blank=True, null=True)
     last_name = models.CharField(max_length=150, blank=True, null=True)
     status_user = models.BooleanField(default=True, verbose_name='status') # soft delete here
-    birth_date = models.DateField(verbose_name='data de nascimento')
+    birth_date = models.DateField(verbose_name='data de nascimento', blank=True, null=True)
     is_staff = models.BooleanField(default=False, verbose_name='administrador')
     is_superuser = models.BooleanField(default=False, verbose_name='superusuario')
     date_joined = models.DateTimeField(default=timezone.now)
 
+
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['cpf', 'first_name', 'last_name', 'sex', 'birth_date']
+    REQUIRED_FIELDS = ['cpf']
 
     objects = CustomUserManager()
 
@@ -75,12 +76,12 @@ class Profile(AbstractBaseUser, PermissionsMixin):
 
 
 class Card(models.Model):
-    number = models.CharField(primary_key=True, unique=True, max_length=16, blank=False, verbose_name='número')
+    number = models.CharField(unique=True, max_length=16, blank=False, verbose_name='número')
     cvv = models.CharField(blank=False, null=False, max_length=3, verbose_name='codigo de segurança')
     validation = models.DateField(verbose_name='Validade')
     holder_name = models.CharField(max_length=30, blank=False, verbose_name='Nome do proprietário')
     cpf_cnpj = models.CharField(max_length=20, blank=False, verbose_name='Cpf/Cnpj do proprietário')
-    profile = models.ManyToManyField(Profile)
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
 
     REQUIRED_FIELDS = ['profile']
 
