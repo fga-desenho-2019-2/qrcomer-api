@@ -2,9 +2,8 @@ from rest_framework import serializers
 from ..models import Profile, Card
 from rest_framework.response import Response
 from rest_framework import status
-
+import datetime
 from django.contrib.auth.hashers import make_password
-# from django.contrib.auth.models import User
 
 
 class CardSerializer(serializers.ModelSerializer):
@@ -16,7 +15,6 @@ class CardSerializer(serializers.ModelSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
 
-    # user_cards = CardSerializer(read_only=True)
     def create(self, validated_data):
         user = Profile(
             email=validated_data["email"],
@@ -45,3 +43,44 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ['id', 'cpf', 'first_name', 'last_name', 'birth_date', 'status_user', 'email', 'password']
         read_only_fields = ['date_joined', 'last_login', 'user_permissions', 'groups', 'is_superuser', 'is_staff']
         extra_kwargs = {'password': {'write_only': True}}
+
+    # Validators
+
+    def validate_cpf(self, value):
+        if len(value) != 11:
+            raise serializers.ValidationError("Invalid CPF size!")
+        else:
+            sum = 0
+            first_digit_validator = 0
+            second_digit_validator = 0
+
+            for i in range(9):
+                sum += int(value[i])*(10-i)
+
+            first_digit_validator = str((sum*10) % 11)
+
+            sum = 0
+
+            for i in range(10):
+                sum += int(value[i])*(11-i)
+
+            second_digit_validator = str((sum*10) % 11)
+            if second_digit_validator == '10':
+                second_digit_validator = '0'
+
+            if first_digit_validator == value[-2] and second_digit_validator == value[-1]:
+                return value
+            else:
+                raise serializers.ValidationError("Invalid CPF digits!")
+
+    def validate_birth_date(self, value):
+        # Check if user age >= 18
+        if (datetime.date.today() - value) < datetime.timedelta(days=365*18):
+            raise serializers.ValidationError("Invalid date!!")
+        return value
+
+    def validate_password(self, value):
+        # Check the minimum size of password
+        if len(value) < 4:
+            raise serializers.ValidationError('Required 4 or more digits to password!')
+        return value

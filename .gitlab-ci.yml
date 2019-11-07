@@ -1,6 +1,7 @@
 stages:
   - lint
   - test
+  - quality
   - build
   - deploy
 
@@ -8,6 +9,7 @@ stages:
   only:
     - /^feature\/+[0-9](-[a-zA-Z0-9_]+)*/ # feature/76-Algum_nome_assim
     - /^bugfix\/+[0-9](-[a-zA-Z0-9_]+)*/ # bugfix/76-Algum_nome_assim
+    - testes-software
     - master
     - develop
     - tags # 0.1.0-rc.1
@@ -45,7 +47,22 @@ tests:
     - pip install pytest
     - pip install -r requirements.txt
   script:
+    - ./manage.py makemigrations
+    - ./manage.py migrate
     - ./manage.py test
+  <<: *all_branches
+
+radon:
+  image: python:3.6
+  stage: quality
+  before_script:
+    - pip install radon
+  script:
+    - radon mi -j user_service > mi.radon.json
+    - radon cc -j user_service > cc.radon.json
+  artifacts:
+    paths:
+      - '*.radon.json'
   <<: *all_branches
 
 build image:
@@ -70,3 +87,13 @@ build image:
     - docker build -t $IMAGE .
     - docker push $IMAGE
   <<: *all_branches
+
+deploy image:
+  stage: deploy
+  image: diemscott/rancher-cli-k8s:v2.0.2
+  script:
+    - echo 1 | rancher login -t "$RANCHER_API_TOKEN" "$RANCHER_SERVER_URL"
+    - rancher context switch "$CONTEXT_HOMOLOG"
+    - rancher kubectl -n homolog scale --current-replicas=1 --replicas=0 deployment/user-service
+    - rancher kubectl -n homolog scale --current-replicas=0 --replicas=1 deployment/user-service
+  <<: *protected_branches

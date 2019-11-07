@@ -1,5 +1,4 @@
 from rest_framework.response import Response
-from django.http import JsonResponse
 from rest_framework import status
 from ..models import Profile, Card
 from .serializers import ProfileSerializer, CardSerializer
@@ -15,6 +14,7 @@ class SessionView(APIView):
 
 
 class CreateUserProfile(SessionView):
+
     serializer_class = ProfileSerializer
 
     def post(self, request):
@@ -49,6 +49,7 @@ class UserProfileView(SessionView):
 
 
 class UserCardCreate(SessionView):
+
     serializer_class = CardSerializer
 
     def post(self, request):

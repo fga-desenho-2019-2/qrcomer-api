@@ -20,6 +20,7 @@ services:
       DB_NAME: user_db
       DB_USER: admin
       DB_PASS: admin
+      GATEWAY_PATH: http://api-gateway:5000
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/project
@@ -31,3 +32,8 @@ services:
 volumes:
   pgdata:
     driver: local
+
+networks:
+  qr-comer:
+    external:
+      name: qr-comer
