@@ -1,32 +1,46 @@
 from rest_framework import serializers
 from ..models import Profile
 import datetime
-# from dateutil.relativedelta import relativedelta
 from django.contrib.auth.hashers import make_password
-# from django.contrib.auth.models import User
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+
+class TokenObtainPairPatchedSerializer(TokenObtainPairSerializer):
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        refresh = self.get_token(self.user)
+        data['refresh'] = str(refresh)
+        data['access'] = str(refresh.access_token)
+
+        # Extra data to Token response
+        data['user_data'] = {
+            'email': self.user.email,
+            'cpf' :self.user.cpf
+        }
+        return data
 
 
 class ProfileSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = Profile(
-            email=validated_data["email"],
-            cpf=validated_data["cpf"],
-            birth_date=validated_data['birth_date'],
-            sex=validated_data['sex'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name'],
+            **validated_data
         )
         user.set_password(validated_data["password"])
         user.save()
         return user
 
     def update(self, instance, validated_data):
-        if 'profile' in validated_data:
-            instance.user.password = make_password(
-                validated_data.get('profile').get('password', instance.user.password)
-            )
-            instance.profile.save()
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.birth_date = validated_data.get('birth_date', instance.birth_date)
+        instance.email = validated_data.get('email', instance.email)
+        instance.password = validated_data.get('password', instance.password)
+        instance.cpf = validated_data.get('cpf', instance.cpf)
+        instance.sex = validated_data.get('sex', instance.sex)
+        instance.save()
+        return instance
 
     class Meta:
         model = Profile
@@ -39,29 +53,26 @@ class ProfileSerializer(serializers.ModelSerializer):
     def validate_cpf(self, value):
         if len(value) != 11:
             raise serializers.ValidationError("Invalid CPF size!")
-        else:
-            sum = 0
-            first_digit_validator = 0
-            second_digit_validator = 0
 
-            for i in range(9):
-                sum += int(value[i])*(10-i)
+        sum = 0
+        first_digit_validator = 0
+        second_digit_validator = 0
 
-            first_digit_validator = str((sum*10) % 11)
+        for i in range(9):
+            sum += int(value[i])*(10-i)
 
-            sum = 0
+        first_digit_validator = str((sum*10) % 11)
 
-            for i in range(10):
-                sum += int(value[i])*(11-i)
+        sum = 0
 
-            second_digit_validator = str((sum*10) % 11)
-            if second_digit_validator == '10':
-                second_digit_validator = '0'
+        for i in range(10):
+            sum += int(value[i])*(11-i)
 
-            if first_digit_validator == value[-2] and second_digit_validator == value[-1]:
-                return value
-            else:
-                raise serializers.ValidationError("Invalid CPF digits!")
+        second_digit_validator = str((sum*10) % 11)
+
+        if str(first_digit_validator)[-1] == value[-2] and str(second_digit_validator)[-1] == value[-1]:
+            return value
+        raise serializers.ValidationError("Invalid CPF digits!")
     
     def validate_birth_date(self, value): 
         # Check if user age >= 18
