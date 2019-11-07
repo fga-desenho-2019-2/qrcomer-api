@@ -73,24 +73,29 @@ class UserCardGetData(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ProfileCards(generics.ListAPIView):
+    serializer_class = ProfileSerializer
 
     def get_queryset(self):
         queryset = Profile.objects.all()
-        return queryset.qs
+        return queryset
 
     def list(self, request, *args, **kwargs):
 
-        query_cards_list = Card.objects.filter(profile__email__in=Profile.objects.values('email')) \
-            .values('profile__cpf', 'number').distinct()
+        profile_id = self.request.query_params.get('id', None)
+
+        query_cards_list = Card.objects.filter(profile_id__in=profile_id) \
+            .values('profile__email', 'number')
 
         data = []
 
-        for card in query_cards_list:
-            data.append({
-                'profile': card['profile__cpf'],
-                'cards': [x['number'] for x in query_cards_list]
-            })
+        cards = [item['number'] for item in query_cards_list]
 
-        # distinct data
+        [data.append({
+            'profile': item['profile__email'],
+            'cards': cards})
+            for item in query_cards_list]
+
+        for item in range(0, len(data)-1):
+            data.pop()
 
         return Response({'data': data, 'title': 'Cartões do usuário'}, status=status.HTTP_200_OK)
