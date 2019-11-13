@@ -1,16 +1,12 @@
-from ..api.utils.cpf import generate_cpf, generate_number_card
-import factory.fuzzy
-
+from ..api.utils.cpf import generate_cpf, generate_number
+import factory, factory.fuzzy
+from ..models import *
 
 class UserFactory(factory.django.DjangoModelFactory):
-    STATUS = (
-        (0, True),
-        (1, False),
-    )
-    STATUS_ID = [x[0] for x in STATUS]
+
 
     class Meta:
-        model = 'user_service.Profile'
+        model = Profile
 
     cpf = generate_cpf()
     email = factory.Faker('email')
@@ -19,22 +15,18 @@ class UserFactory(factory.django.DjangoModelFactory):
     first_name = factory.Faker('first_name')
     birth_date = factory.Faker('date_of_birth', tzinfo=None, minimum_age=18, maximum_age=60)
     last_name = factory.Faker('last_name')
-    status_user = factory.fuzzy.FuzzyChoice(STATUS_ID)
+    status_user = factory.fuzzy.FuzzyChoice([0,1])
 
 
 class CardFactory(factory.django.DjangoModelFactory):
-    STATUS = (
-        (0, True),
-        (1, False),
-    )
-    STATUS_ID = [x[0] for x in STATUS]
 
     class Meta:
-        model = 'user_service.Card'
+        model = Card
 
-    number = generate_number_card()
-    cvv = factory.Faker(length=3, digits=True)
-    validation = factory.Faker('validation', tzinfo=None)
+    number = generate_number(16)
+    cvv = generate_number(3)
+    validation = factory.Faker('future_date', end_date="+720d", tzinfo=None)
     holder_name = factory.Faker('first_name')
     cpf_cnpj = generate_cpf()
-    profile = factory.Faker('profile__email')
+    profile = factory.SubFactory(UserFactory)
+
