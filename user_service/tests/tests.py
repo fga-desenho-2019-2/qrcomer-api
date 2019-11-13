@@ -3,6 +3,7 @@ from rest_framework import status
 from ..models import Profile, Card
 from django.urls import reverse
 from .factory import UserFactory, CardFactory
+from django.core import serializers
 import factory
 
 class TestProfileUser(APITestCase):
@@ -53,6 +54,7 @@ class TestProfileUser(APITestCase):
         self.user_data['birth_date'] = '2005-08-20'
         response = self.client.post(self.url, self.user_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    
 
 
 class test_request_card(APITestCase):
@@ -61,7 +63,9 @@ class test_request_card(APITestCase):
 
     def setUp(self):
         self.card_data = factory.build(dict, FACTORY_CLASS=CardFactory)
-
+        self.user_data = UserFactory()
+        self.card_data['profile'] = self.user_data.id
+    
     def test_create_card(self):
         response = self.client.post(self.url, self.card_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -69,18 +73,16 @@ class test_request_card(APITestCase):
 
     def test_create_card_with_wrong_number_format(self):
         self.card_data['number'] = '123456789'
-        if len(self.card_data['number']) != 16:
-            response = self.client.post(self.url, self.card_data, format='json')
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        response = self.client.post(self.url, self.card_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_card_wrong_cvv_format(self):
-        self.card_data['cvv'] = '12'
-        if len(self.card_data['cvv']) != 3:
-            response = self.client.post(self.url, self.card_data, format='json')
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.card_data['cvv'] = "12"
+        print(self.card_data)
+        response = self.client.post(self.url, self.card_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_card_wrong_holder_name_format(self):
         self.card_data['holder_name'] = 'te'
-        if len(self.card_data['cvv']) < 3:
-            response = self.client.post(self.url, self.card_data, format='json')
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        response = self.client.post(self.url, self.card_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
