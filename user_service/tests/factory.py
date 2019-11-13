@@ -15,7 +15,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     first_name = factory.Faker('first_name')
     birth_date = factory.Faker('date_of_birth', tzinfo=None, minimum_age=18, maximum_age=60)
     last_name = factory.Faker('last_name')
-    status_user = factory.fuzzy.FuzzyChoice([0,1])
+    status_user = True
 
 
 class CardFactory(factory.django.DjangoModelFactory):

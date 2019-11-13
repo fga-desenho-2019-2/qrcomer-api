@@ -92,7 +92,6 @@ class ProfileSerializer(serializers.ModelSerializer):
         instance.email = validated_data.get('email', instance.email)
         instance.password = validated_data.get('password', instance.password)
         instance.cpf = validated_data.get('cpf', instance.cpf)
-        instance.sex = validated_data.get('sex', instance.sex)
         instance.save()
         return instance
 
