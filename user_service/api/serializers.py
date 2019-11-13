@@ -43,7 +43,7 @@ class CardSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Error: Invalid Number Card format")
         return value
 
-    def validade_cvv(self, value):
+    def validate_cvv(self, value):
         if len(value) != 3:
             raise serializers.ValidationError('Error: Invalid CVV format')
         return value
@@ -54,8 +54,8 @@ class CardSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Error: Invalid Data Card format")
         return value
 
-    def validade_holder_name(self, value):
-        if len(value) < 2:
+    def validate_holder_name(self, value):
+        if len(value) <= 2:
             raise serializers.ValidationError('Error: Invalid CVV format')
         return value
 

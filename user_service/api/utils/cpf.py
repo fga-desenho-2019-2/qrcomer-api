@@ -10,6 +10,6 @@ def generate_cpf():
                                                                                 
     return '%s%s%s%s%s%s%s%s%s%s%s' % tuple(cpf)
 
-def generate_number_card():
-    number = [random.randint(0, 15) for x in range(9)]
-    return '%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % tuple(number)
+def generate_number(n):
+    number = [random.randint(0, 9) for x in range(n)]
+    return '%s'*n % tuple(number)
