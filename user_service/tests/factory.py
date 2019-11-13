@@ -1,19 +1,12 @@
-
-import factory
-from ..api.utils.cpf import generate_cpf
-import factory.fuzzy
+from ..api.utils.cpf import generate_cpf, generate_number
+import factory, factory.fuzzy
+from ..models import *
 
 class UserFactory(factory.django.DjangoModelFactory):
 
-    GENDERS = (
-        (0, 'm'),
-        (1, 'm'),
-    )
-    GENDER_IDS = [x[0] for x in GENDERS]
 
-    
     class Meta:
-        model = 'user_service.Profile'
+        model = Profile
 
     cpf = generate_cpf()
     email = factory.Faker('email')
@@ -22,5 +15,18 @@ class UserFactory(factory.django.DjangoModelFactory):
     first_name = factory.Faker('first_name')
     birth_date = factory.Faker('date_of_birth', tzinfo=None, minimum_age=18, maximum_age=60)
     last_name = factory.Faker('last_name')
-    sex = factory.fuzzy.FuzzyChoice(GENDER_IDS)
+    status_user = True
+
+
+class CardFactory(factory.django.DjangoModelFactory):
+
+    class Meta:
+        model = Card
+
+    number = generate_number(16)
+    cvv = generate_number(3)
+    validation = factory.Faker('future_date', end_date="+720d", tzinfo=None)
+    holder_name = factory.Faker('first_name')
+    cpf_cnpj = generate_cpf()
+    profile = factory.SubFactory(UserFactory)
 

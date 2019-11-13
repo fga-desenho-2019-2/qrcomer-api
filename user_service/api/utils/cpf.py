@@ -9,3 +9,7 @@ def generate_cpf():
         cpf.append(11 - val if val > 1 else 0)                                  
                                                                                 
     return '%s%s%s%s%s%s%s%s%s%s%s' % tuple(cpf)
+
+def generate_number(n):
+    number = [random.randint(0, 9) for x in range(n)]
+    return '%s'*n % tuple(number)

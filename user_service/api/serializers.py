@@ -1,9 +1,63 @@
 from rest_framework import serializers
-from ..models import Profile
+from ..models import Profile, Card
+from rest_framework.response import Response
+from rest_framework import status
 import datetime
 from django.contrib.auth.hashers import make_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+
+class CardSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Card
+        fields = '__all__'
+
+    def validate_cpf_cnpj(self, value):
+
+        if len(value) != 11:
+            raise serializers.ValidationError("Invalid CPF size!")
+
+        sum = 0
+        first_digit_validator = 0
+        second_digit_validator = 0
+
+        for i in range(9):
+            sum += int(value[i])*(10-i)
+
+        first_digit_validator = str((sum*10) % 11)
+
+        sum = 0
+
+        for i in range(10):
+            sum += int(value[i])*(11-i)
+
+        second_digit_validator = str((sum*10) % 11)
+
+        if str(first_digit_validator)[-1] == value[-2] and str(second_digit_validator)[-1] == value[-1]:
+            return value
+        raise serializers.ValidationError("Invalid CPF digits!")
+
+    def validate_number(self, value):
+        if len(value) != 16:
+            raise serializers.ValidationError("Error: Invalid Number Card format")
+        return value
+
+    def validate_cvv(self, value):
+        if len(value) != 3:
+            raise serializers.ValidationError('Error: Invalid CVV format')
+        return value
+
+    def validate_validation(self, value):
+        # Check if card its not older
+        if (datetime.date.today() - value) > datetime.timedelta(days=365*10):
+            raise serializers.ValidationError("Error: Invalid Data Card format")
+        return value
+
+    def validate_holder_name(self, value):
+        if len(value) <= 2:
+            raise serializers.ValidationError('Error: Invalid CVV format')
+        return value
 
 class TokenObtainPairPatchedSerializer(TokenObtainPairSerializer):
 
@@ -38,17 +92,16 @@ class ProfileSerializer(serializers.ModelSerializer):
         instance.email = validated_data.get('email', instance.email)
         instance.password = validated_data.get('password', instance.password)
         instance.cpf = validated_data.get('cpf', instance.cpf)
-        instance.sex = validated_data.get('sex', instance.sex)
         instance.save()
         return instance
 
     class Meta:
         model = Profile
-        fields = ['id', 'cpf', 'first_name', 'last_name', 'birth_date', 'sex', 'email', 'password']
+        fields = ['id', 'cpf', 'first_name', 'last_name', 'birth_date', 'status_user', 'email', 'password']
         read_only_fields = ['date_joined', 'last_login', 'user_permissions', 'groups', 'is_superuser', 'is_staff']
         extra_kwargs = {'password': {'write_only': True}}
 
-    # Validators 
+    # Validators
 
     def validate_cpf(self, value):
         if len(value) != 11:
