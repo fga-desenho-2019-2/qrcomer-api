@@ -85,7 +85,6 @@ class ProfileSerializer(serializers.ModelSerializer):
         )
         
         image = validated_data.pop('image')
-        print("@"*10, validated_data)
         user.image = image
         user.set_password(validated_data["password"])
         user.save()
@@ -144,3 +143,16 @@ class ProfileSerializer(serializers.ModelSerializer):
         if len(value) < 4:
             raise serializers.ValidationError('Required 4 or more digits to password!')
         return value
+
+class ImageSerializer(serializers.ModelSerializer):
+    image = Base64ImageField()
+
+    def update(self, user, validated_data):
+        image = validated_data.pop('image')
+        user.image = image
+        user.save()
+        return user
+
+    class Meta:
+        model = Profile
+        fields = ['cpf', 'image']
