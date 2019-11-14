@@ -6,6 +6,8 @@ djangorestframework_simplejwt
 djangorestframework-jwt
 django-cors-headers==3.1.1
 python-dateutil
+pillow
+django-extra-fields
 
 # Testing utils
 coverage

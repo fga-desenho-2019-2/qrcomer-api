@@ -54,7 +54,7 @@ class Profile(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False, verbose_name='administrador')
     is_superuser = models.BooleanField(default=False, verbose_name='superusuario')
     date_joined = models.DateTimeField(default=timezone.now)
-
+    image = models.ImageField(upload_to="user_images", max_length=255, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['cpf']
