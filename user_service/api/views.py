@@ -28,6 +28,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
     token_obtain_pair = TokenObtainPairView.as_view()
 
+host = "http://0.0.0.0:8000/"
 
 class CreateUserProfile(BaseView):
     """
@@ -38,7 +39,12 @@ class CreateUserProfile(BaseView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            data = serializer.data
+            if 'image' in data:
+                url_image = host + f"api/user/get_image/{data['cpf']}"
+                data = serializer.data
+                data["image"] = url_image 
+            return Response(data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -64,7 +70,10 @@ class UserProfile(BaseView):
     def get(self, request, cpf):
         profile = get_object_or_404(Profile, cpf=cpf)
         serializer = ProfileSerializer(profile, )
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        url_image = host + f"api/user/get_image/{cpf}"
+        data = serializer.data
+        data["image"] = url_image 
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class UserProfileView(BaseView):
@@ -151,7 +160,6 @@ class ProfileCards(generics.ListAPIView, BaseView):
 
         return Response({'data': data, 'title': 'Cartões do usuário'}, status=status.HTTP_200_OK)
 
-host = "http://0.0.0.0:8000"
 
 class CreateUserImage(BaseView):
     """
@@ -165,7 +173,10 @@ class CreateUserImage(BaseView):
 
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            url_image = host + f"api/user/get_image/{cpf}"
+            data = serializer.data
+            data["image"] = url_image 
+            return Response(data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class GetUserImage(BaseView):
