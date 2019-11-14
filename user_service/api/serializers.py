@@ -77,15 +77,15 @@ class TokenObtainPairPatchedSerializer(TokenObtainPairSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    image = Base64ImageField()
-
+    
     def create(self, validated_data):
         user = Profile(
             **validated_data
         )
-        
-        image = validated_data.pop('image')
-        user.image = image
+        if 'image' in validated_data:
+            image = Base64ImageField()
+            image = validated_data.pop('image')
+            user.image = image
         user.set_password(validated_data["password"])
         user.save()
         return user

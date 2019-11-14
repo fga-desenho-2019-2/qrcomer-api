@@ -40,7 +40,7 @@ class CreateUserProfile(BaseView):
         if serializer.is_valid():
             serializer.save()
             data = serializer.data
-            if 'image' in data:
+            if data['image']:
                 url_image = host + f"api/user/get_image/{data['cpf']}"
                 data = serializer.data
                 data["image"] = url_image 
