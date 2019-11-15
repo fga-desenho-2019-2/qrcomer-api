@@ -1,13 +1,14 @@
 from rest_framework.response import Response
 from rest_framework import status
-from ..models import Profile, Card
-from .serializers import *
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import authentication, generics
 
+from ..models import Profile, Card
+from .serializers import *
 
 class BaseView(APIView):
     """
@@ -27,6 +28,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
     token_obtain_pair = TokenObtainPairView.as_view()
 
+host = "http://0.0.0.0:8000/"
 
 class CreateUserProfile(BaseView):
     """
@@ -37,7 +39,12 @@ class CreateUserProfile(BaseView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            data = serializer.data
+            if data['image']:
+                url_image = host + f"api/user/get_image/{data['cpf']}"
+                data = serializer.data
+                data["image"] = url_image 
+            return Response(data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -62,8 +69,11 @@ class UserProfile(BaseView):
     """
     def get(self, request, cpf):
         profile = get_object_or_404(Profile, cpf=cpf)
-        serializer = ProfileSerializer(profile)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = ProfileSerializer(profile, )
+        url_image = host + f"api/user/get_image/{cpf}"
+        data = serializer.data
+        data["image"] = url_image 
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class UserProfileView(BaseView):
@@ -149,3 +159,51 @@ class ProfileCards(generics.ListAPIView, BaseView):
             data.pop()
 
         return Response({'data': data, 'title': 'Cartões do usuário'}, status=status.HTTP_200_OK)
+
+
+class CreateUserImage(BaseView):
+    """
+    CreateUseImage, responsável por salvar a imagem do usuário
+    rota: user/post_image (POST)
+    """
+    def post(self, request):
+        cpf = request.data["cpf"]
+        user = get_object_or_404(Profile, cpf=cpf)
+        serializer = ImageSerializer(user, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            url_image = host + f"api/user/get_image/{cpf}"
+            data = serializer.data
+            data["image"] = url_image 
+            return Response(data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class GetUserImage(BaseView):
+    """
+    GetUseImage, responsável por obter a imagem do usuário
+    rota: user/get_image/<str:cpf> (GET)
+    """
+    def get(self, request, cpf):
+        user = get_object_or_404(Profile, cpf=cpf)
+        if user.image:
+            return HttpResponse(user.image, content_type="image/png")
+        else:
+            return HttpResponse(status=404)
+
+class DeleteUserImage(BaseView):
+    """
+    DeleteUseImage, responsável por deletar a imagem do usuário
+    rota: user/delete_image/<str:cpf> (DELETE)
+    """
+    def delete(self, request, cpf):
+        user = get_object_or_404(Profile, cpf=cpf)
+
+        try: 
+            if user.image:
+                user.image = None
+                user.save()
+        except:
+            return HttpResponse(status=404)
+        
+        return HttpResponse(status=204)
