@@ -5,6 +5,7 @@ from rest_framework import status
 import datetime
 from django.contrib.auth.hashers import make_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from drf_extra_fields.fields import Base64ImageField
 
 
 class CardSerializer(serializers.ModelSerializer):
@@ -76,11 +77,15 @@ class TokenObtainPairPatchedSerializer(TokenObtainPairSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-
+    
     def create(self, validated_data):
         user = Profile(
             **validated_data
         )
+        if 'image' in validated_data:
+            image = Base64ImageField()
+            image = validated_data.pop('image')
+            user.image = image
         user.set_password(validated_data["password"])
         user.save()
         return user
@@ -97,7 +102,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ['id', 'cpf', 'first_name', 'last_name', 'birth_date', 'status_user', 'email', 'password']
+        fields = ['id', 'cpf', 'first_name', 'last_name', 'birth_date', 'status_user', 'email', 'password', 'image']
         read_only_fields = ['date_joined', 'last_login', 'user_permissions', 'groups', 'is_superuser', 'is_staff']
         extra_kwargs = {'password': {'write_only': True}}
 
@@ -138,3 +143,16 @@ class ProfileSerializer(serializers.ModelSerializer):
         if len(value) < 4:
             raise serializers.ValidationError('Required 4 or more digits to password!')
         return value
+
+class ImageSerializer(serializers.ModelSerializer):
+    image = Base64ImageField()
+
+    def update(self, user, validated_data):
+        image = validated_data.pop('image')
+        user.image = image
+        user.save()
+        return user
+
+    class Meta:
+        model = Profile
+        fields = ['cpf', 'image']
