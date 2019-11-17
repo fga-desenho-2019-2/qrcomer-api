@@ -7,7 +7,6 @@ from django.contrib.auth.hashers import make_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from drf_extra_fields.fields import Base64ImageField
 
-
 class CardSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -77,6 +76,8 @@ class TokenObtainPairPatchedSerializer(TokenObtainPairSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+
+    password = serializers.CharField( write_only=True, required=True)
     
     def create(self, validated_data):
         user = Profile(
@@ -95,8 +96,8 @@ class ProfileSerializer(serializers.ModelSerializer):
         instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.birth_date = validated_data.get('birth_date', instance.birth_date)
         instance.email = validated_data.get('email', instance.email)
-        instance.password = validated_data.get('password', instance.password)
         instance.cpf = validated_data.get('cpf', instance.cpf)
+        instance.password = validated_data.get('password', instance.password)
         instance.save()
         return instance
 
@@ -104,7 +105,6 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ['id', 'cpf', 'first_name', 'last_name', 'birth_date', 'status_user', 'email', 'password', 'image']
         read_only_fields = ['date_joined', 'last_login', 'user_permissions', 'groups', 'is_superuser', 'is_staff']
-        extra_kwargs = {'password': {'write_only': True}}
 
     # Validators
 

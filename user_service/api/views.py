@@ -55,11 +55,13 @@ class EditUserProfile(BaseView):
     """
     def put(self, request, cpf, format=None):
         profile = get_object_or_404(Profile, cpf=cpf)
+        request.data['password'] = profile.password
         serializer = ProfileSerializer(profile, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #TODO: edit password
 
 
 class UserProfile(BaseView):
@@ -72,7 +74,8 @@ class UserProfile(BaseView):
         serializer = ProfileSerializer(profile, )
         url_image = host + f"api/user/get_image/{cpf}"
         data = serializer.data
-        data["image"] = url_image 
+        if profile.image:
+            data["image"] = url_image 
         return Response(data, status=status.HTTP_200_OK)
 
 
