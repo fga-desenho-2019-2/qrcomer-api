@@ -1,11 +1,21 @@
 from rest_framework.response import Response
 from rest_framework import status
+from django.http import JsonResponse
+from ..models import Profile, Card
+from .serializers import *
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import authentication, generics
+from rest_framework.status import (
+    HTTP_403_FORBIDDEN,
+    HTTP_200_OK,
+    HTTP_404_NOT_FOUND,
+    HTTP_400_BAD_REQUEST,
+    HTTP_201_CREATED
+)
 
 from ..models import Profile, Card
 from .serializers import *
@@ -116,6 +126,14 @@ class CardView(BaseView):
 
     def get_lookup_field(self):
         return self.lookup_field
+
+    def delete(self, request, number):
+        card = Card.objects.filter(number = number)
+        if not card:
+            return JsonResponse({"message": "No card found"}, status=HTTP_404_NOT_FOUND)
+        card.delete()
+        return JsonResponse({ "message": "Card deleted" }, status=HTTP_200_OK)
+
 
     def get(self, request, id):
         card = get_object_or_404(Card, id=id)
