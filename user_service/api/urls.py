@@ -19,7 +19,7 @@ urlpatterns = [
     path('user/card/<int:number>', CardView.as_view(), name='get_card'),
     path('user/card/', CreateCard.as_view(), name='post_card'),
     path('user/card/<int:id>', CardView.as_view(), name='get_card'),
-    path('user/user_cards/', ProfileCards.as_view(), name='get_profile_card')
+    path('user/user_cards/', ProfileCards.as_view(), name='get_profile_card'),
     
     ## user images urls
     path('user/post_image', CreateUserImage.as_view(), name='post_image'),
