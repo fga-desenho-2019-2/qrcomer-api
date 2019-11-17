@@ -97,7 +97,9 @@ class CreateCard(BaseView):
 
     serializer_class = CardSerializer
 
-    def post(self, request):
+    def post(self, request, cpf):
+        profile = get_object_or_404(Profile, cpf=cpf)
+        request.data['profile'] = profile.id
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
