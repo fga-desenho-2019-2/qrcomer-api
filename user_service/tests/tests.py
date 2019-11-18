@@ -95,14 +95,14 @@ class TestProfileUser(APITestCase):
 
 class test_request_card(APITestCase):
 
-    url = reverse('post_card')
-
     def setUp(self):
         self.card_data = factory.build(dict, FACTORY_CLASS=CardFactory)
         self.user_data = UserFactory()
+        self.url = reverse('post_card', kwargs={'cpf': self.user_data.cpf})
         self.card_data['profile'] = self.user_data.id
     
     def test_create_card(self):
+        print(self.card_data)
         response = self.client.post(self.url, self.card_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Card.objects.count(), 1)
