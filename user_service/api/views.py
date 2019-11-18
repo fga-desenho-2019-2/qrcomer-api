@@ -65,11 +65,13 @@ class EditUserProfile(BaseView):
     """
     def put(self, request, cpf, format=None):
         profile = get_object_or_404(Profile, cpf=cpf)
+        request.data['password'] = profile.password
         serializer = ProfileSerializer(profile, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #TODO: edit password
 
 
 class UserProfile(BaseView):
@@ -82,7 +84,8 @@ class UserProfile(BaseView):
         serializer = ProfileSerializer(profile, )
         url_image = host + f"api/user/get_image/{cpf}"
         data = serializer.data
-        data["image"] = url_image 
+        if profile.image:
+            data["image"] = url_image 
         return Response(data, status=status.HTTP_200_OK)
 
 
@@ -104,7 +107,9 @@ class CreateCard(BaseView):
 
     serializer_class = CardSerializer
 
-    def post(self, request):
+    def post(self, request, cpf):
+        profile = get_object_or_404(Profile, cpf=cpf)
+        request.data['profile'] = profile.id
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -136,7 +141,7 @@ class CardView(BaseView):
 
 
     def get(self, request, id):
-        card = get_object_or_404(Card, id=id)
+        card = get_object_or_404(Card, number=id)
         serializer = CardSerializer(card)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -147,6 +152,11 @@ class CardView(BaseView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, id):
+        card = get_object_or_404(Card, number=id)
+        card.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ProfileCards(generics.ListAPIView, BaseView):
@@ -155,11 +165,9 @@ class ProfileCards(generics.ListAPIView, BaseView):
         queryset = Profile.objects.all()
         return queryset
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request,cpf):
 
-        profile_cpf = self.request.query_params.get('cpf', None)
-
-        query_cards_list = Card.objects.filter(profile__cpf=profile_cpf) \
+        query_cards_list = Card.objects.filter(profile__cpf=cpf) \
             .values('profile__email', 'profile__cpf', 'number')
         # print(query_cards_list)
         data = []
