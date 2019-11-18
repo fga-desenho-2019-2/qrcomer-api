@@ -19,8 +19,8 @@ urlpatterns = [
 
     path('user/create_card/<str:cpf>', CreateCard.as_view(), name='post_card'),
     path('user/card/<int:id>', CardView.as_view(), name='get_card'),
-    # path('user/card/<int:id>', CardView.as_view(), name='put_card'),
-    path('user/user_cards/', ProfileCards.as_view(), name='get_profile_card'),
+    path('user/delete_card/<int:id>', CardView.as_view(), name='delete_card'),
+    path('user/user_cards/<str:cpf>', ProfileCards.as_view(), name='get_profile_card'),
     
     ## user images urls
     path('user/post_image', CreateUserImage.as_view(), name='post_image'),

@@ -123,7 +123,7 @@ class CardView(BaseView):
         return self.lookup_field
 
     def get(self, request, id):
-        card = get_object_or_404(Card, id=id)
+        card = get_object_or_404(Card, number=id)
         serializer = CardSerializer(card)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -134,6 +134,11 @@ class CardView(BaseView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, id):
+        card = get_object_or_404(Card, number=id)
+        card.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ProfileCards(generics.ListAPIView, BaseView):
@@ -142,11 +147,9 @@ class ProfileCards(generics.ListAPIView, BaseView):
         queryset = Profile.objects.all()
         return queryset
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request,cpf):
 
-        profile_cpf = self.request.query_params.get('cpf', None)
-
-        query_cards_list = Card.objects.filter(profile__cpf=profile_cpf) \
+        query_cards_list = Card.objects.filter(profile__cpf=cpf) \
             .values('profile__email', 'profile__cpf', 'number')
         # print(query_cards_list)
         data = []
